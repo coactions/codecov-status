@@ -7,7 +7,9 @@ already happened:
 
 ```
     - name: Check codecov.io status
+      if: github.event_name == 'pull_request'
       uses: coactions/codecov-status@main
 ```
 
-Be sure that this runs only on pull requests, otherwise will fail.
+If you want to see a full example of it being used in production, check
+[this](https://github.com/ansible/ansible-dev-tools/blob/main/.github/workflows/tox.yml#L104-L106).
