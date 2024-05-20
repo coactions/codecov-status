@@ -22,7 +22,7 @@ repos:
           - prettier-plugin-toml
           - prettier-plugin-sort-json
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.28.2
+    rev: 0.28.3
     hooks:
       - id: check-github-workflows
   - repo: https://github.com/pre-commit/pre-commit-hooks.git
@@ -50,7 +50,7 @@ repos:
         types: [file, yaml]
         entry: yamllint --strict
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.4.3"
+    rev: "v0.4.4"
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
@@ -65,3 +65,9 @@ repos:
       - id: mypy
         # empty args needed in order to match mypy cli behavior
         args: [--strict]
+  - repo: https://github.com/pycqa/pylint
+    rev: v3.2.2
+    hooks:
+      - id: pylint
+        args:
+          - --output-format=colorized
