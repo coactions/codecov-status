@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Replacement for CodeCov GitHub App."""
+import datetime
 import json
 import os
 import sys
@@ -7,9 +8,14 @@ import sys
 import time
 from urllib.request import urlopen
 
+DELAY = 5
+MAX_RETRIES = 12
+# 5s, 10s, 15s, 20s,...
+MIN_AGE_IN_SECONDS = 10
 
 if __name__ == "__main__":
 
+    start_time = datetime.datetime.now() - datetime.timedelta(seconds=2)
     if os.environ.get("GITHUB_REPOSITORY", "") and os.environ.get(
         "GITHUB_REPOSITORY", ""
     ):
@@ -28,7 +34,9 @@ if __name__ == "__main__":
         sys.exit(0)
 
     retries = 0
-    while retries < 5:
+    sleep = DELAY
+    while retries < MAX_RETRIES:
+        time.sleep(sleep)
         url = f"https://api.codecov.io/api/v2/github/{org}/repos/{repo}/pulls/{pr}/"
         print(f"Getting codecov.io status from {url}")
         with urlopen(url) as response:
@@ -37,19 +45,19 @@ if __name__ == "__main__":
             print(data, file=sys.stdout)
             base_cov = 0.0
             head_cov = 0.0
+            updatestamp = datetime.datetime.fromisoformat(data["updatestamp"])
             if data["base_totals"] is not None:
                 base_cov = data["base_totals"]["coverage"]
             if data["head_totals"] is not None:
                 head_cov = data["head_totals"]["coverage"]
             delta_coverage = head_cov - base_cov
-        if head_cov != 0.0:
+        if updatestamp > start_time:
             break
         retries += 1
-        delay = retries * 2
+        sleep = DELAY * (retries + 1)
         print(
-            f"::notice::Codecov API returned no head_totals, we will retry the request in {delay} seconds."
+            f"::notice::Codecov API returned previous stats, we will retry the request in {sleep} seconds."
         )
-        time.sleep(delay)
 
     msg = f"{abs(delta_coverage):.2f}% ({base_cov:.2f}% on base -> {head_cov:.2f}% on head).\n"
     msg += f"See https://app.codecov.io/gh/{org}/{repo}/pull/{pr} for details."
