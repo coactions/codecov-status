@@ -15,7 +15,7 @@ MIN_AGE_IN_SECONDS = 10
 
 if __name__ == "__main__":
 
-    start_time = datetime.datetime.now() - datetime.timedelta(seconds=2)
+    start_time = datetime.datetime.now(tz=datetime.UTC) - datetime.timedelta(seconds=2)
     if os.environ.get("GITHUB_REPOSITORY", "") and os.environ.get(
         "GITHUB_REPOSITORY", ""
     ):
