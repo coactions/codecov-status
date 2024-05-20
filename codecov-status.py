@@ -33,9 +33,11 @@ if __name__ == "__main__":
         data = json.loads(response_content)
         print(data, file=sys.stdout)
         base_cov = 0.0
+        head_cov = 0.0
         if data["base_totals"] is not None:
             base_cov = data["base_totals"]["coverage"]
-        head_cov = data["head_totals"]["coverage"]
+        if data["head_totals"] is not None:
+            head_cov = data["head_totals"]["coverage"]
         delta_coverage = head_cov - base_cov
 
     msg = f"{abs(delta_coverage):.2f}% ({base_cov:.2f}% on base -> {head_cov:.2f}% on head).\n"
