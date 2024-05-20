@@ -45,7 +45,7 @@ if __name__ == "__main__":
         if head_cov != 0.0:
             break
         retries += 1
-        delay = retries * 30
+        delay = retries * 2
         print(
             f"::notice::Codecov API returned no head_totals, we will retry the request in {delay} seconds."
         )
