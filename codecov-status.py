@@ -45,7 +45,9 @@ if __name__ == "__main__":
             print(data, file=sys.stdout)
             base_cov = 0.0
             head_cov = 0.0
-            updatestamp = datetime.datetime.fromisoformat(data["updatestamp"])
+            updatestamp = start_time
+            if data["updatestamp"]:  # can be None or a string
+                updatestamp = datetime.datetime.fromisoformat(data["updatestamp"])
             if data["base_totals"] is not None:
                 base_cov = data["base_totals"]["coverage"]
             if data["head_totals"] is not None:
