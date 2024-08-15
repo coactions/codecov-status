@@ -53,7 +53,9 @@ if __name__ == "__main__":
             if data["head_totals"] is not None:
                 head_cov = data["head_totals"]["coverage"]
             delta_coverage = head_cov - base_cov
-        if updatestamp > start_time:
+        # It can happen for updatestamp to be updated but head_totals to become
+        # None for some time, so we keep retrying until we have something.
+        if updatestamp > start_time and head_cov:
             break
         retries += 1
         sleep = DELAY * (retries + 1)
