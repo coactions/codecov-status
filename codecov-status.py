@@ -60,7 +60,7 @@ if __name__ == "__main__":
         retries += 1
         sleep = DELAY * (retries + 1)
         print(
-            f"::notice::Codecov API returned previous stats, we will retry the request in {sleep} seconds."
+            f"Codecov API returned previous stats, we will retry the request in {sleep} seconds."
         )
 
     msg = f"{abs(delta_coverage):.2f}% ({base_cov:.2f}% on base -> {head_cov:.2f}% on head).\n"
@@ -70,6 +70,4 @@ if __name__ == "__main__":
             f"::error::Setting coverage check as failed due to coverage going down by {msg}"
         )
         sys.exit(2)
-    print(
-        f"::notice::Setting coverage check as passed due to coverage going up by {msg}"
-    )
+    print(f"Setting coverage check as passed due to coverage going up by {msg}")
