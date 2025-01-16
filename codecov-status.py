@@ -6,6 +6,7 @@ import os
 import sys
 
 import time
+from urllib.error import HTTPError
 from urllib.request import urlopen
 
 DELAY = 5
@@ -39,29 +40,31 @@ if __name__ == "__main__":
         time.sleep(sleep)
         url = f"https://api.codecov.io/api/v2/github/{org}/repos/{repo}/pulls/{pr}/"
         print(f"Getting codecov.io status from {url}")
-        with urlopen(url) as response:
-            response_content = response.read().decode("utf-8")
-            data = json.loads(response_content)
-            print(data, file=sys.stdout)
-            base_cov = 0.0
-            head_cov = 0.0
-            updatestamp = start_time
-            if data["updatestamp"]:  # can be None or a string
-                updatestamp = datetime.datetime.fromisoformat(data["updatestamp"])
-            if data["base_totals"] is not None:
-                base_cov = data["base_totals"]["coverage"]
-            if data["head_totals"] is not None:
-                head_cov = data["head_totals"]["coverage"]
-            delta_coverage = head_cov - base_cov
-        # It can happen for updatestamp to be updated but head_totals to become
-        # None for some time, so we keep retrying until we have something.
-        if updatestamp > start_time and head_cov:
-            break
+        try:
+            with urlopen(url) as response:
+                response_content = response.read().decode("utf-8")
+                data = json.loads(response_content)
+                print(data, file=sys.stdout)
+                base_cov = 0.0
+                head_cov = 0.0
+                updatestamp = start_time
+                if data["updatestamp"]:  # can be None or a string
+                    updatestamp = datetime.datetime.fromisoformat(data["updatestamp"])
+                if data["base_totals"] is not None:
+                    base_cov = data["base_totals"]["coverage"]
+                if data["head_totals"] is not None:
+                    head_cov = data["head_totals"]["coverage"]
+                delta_coverage = head_cov - base_cov
+            # It can happen for updatestamp to be updated but head_totals to become
+            # None for some time, so we keep retrying until we have something.
+            if updatestamp > start_time and head_cov:
+                break
+            error = "Codecov API returned previous stats"
+        except HTTPError as e:
+            error = str(e)
         retries += 1
         sleep = DELAY * (retries + 1)
-        print(
-            f"Codecov API returned previous stats, we will retry the request in {sleep} seconds."
-        )
+        print(f"{error} We will retry the request in {sleep} seconds.")
 
     msg = f"{abs(delta_coverage):.2f}% ({base_cov:.2f}% on base -> {head_cov:.2f}% on head).\n"
     msg += f"See https://app.codecov.io/gh/{org}/{repo}/pull/{pr} for details."
