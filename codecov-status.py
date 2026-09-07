@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Replacement for CodeCov GitHub App."""
+
 import datetime
 import json
 import os
 import sys
-
 import time
 from urllib.error import HTTPError
 from urllib.request import urlopen
